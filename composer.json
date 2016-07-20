@@ -1,0 +1,20 @@
+{
+	"name": "sky/yii",
+	"description": "Sky extends libray for yii2",
+	"homepage": "http://rockbeat.web.id",
+	"type": "library",
+	"license": "Apache",
+	"authors": [
+		{
+			"name": "Hansen Wong",
+			"email": "huanghanzen@gmail.com",
+			"role": "Developer"
+		}
+	],
+	"require": {
+            "yiisoft/yii2": ">=2.0.6"
+	},
+	"autoload": {
+		"psr-4": {"Sky\\yii\\": "src/"}
+	}
+}
