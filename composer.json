@@ -15,6 +15,6 @@
             "yiisoft/yii2": ">=2.0.6"
 	},
 	"autoload": {
-		"psr-4": {"Sky\\yii\\": "src/"}
+		"psr-4": {"sky\\yii\\": "src/"}
 	}
 }
