@@ -51,11 +51,14 @@ class ActiveRecord extends \yii\db\ActiveRecord
                 [[$this, 'onSetValue'], ['attributes' => ['updated_at'], 'value' => time()]],
                 [[$this, 'onSetValue'], ['attributes' => ['updated_by'], 'value' => Yii::$app->user->id]],
             ],
+            self::EVENT_AFTER_VALIDATE => [
+                [[$this, 'onTransaction'], null],
+            ],
         ];
     }
     
     public function addError($attribute, $error = '') {
-        if (!self::isError()) {
+        if (!self::hasError()) {
             $this->trigger(self::EVENT_ERROR);
         }
         self::$errors[$this->className()][$attribute][] = $error;
@@ -67,7 +70,7 @@ class ActiveRecord extends \yii\db\ActiveRecord
      * 
      * @return boolean
      */
-    public static function isError()
+    public static function hasError()
     {
         return self::$errors ? true : false;
     }
@@ -79,6 +82,16 @@ class ActiveRecord extends \yii\db\ActiveRecord
                 if ($this->hasAttribute($attribute) || $this->hasProperty($attribute)) {
                     $this->{$attribute} = $event->data['value'];
                 }
+            }
+        }
+    }
+    
+    public function onTransaction($event)
+    {
+        $transaction = $this->db->getTransaction();
+        if ($transaction) {
+            if ($transaction->isActive && self::hasError()) {
+                throw new \yii\db\Exception(Yii::t('app', 'Fail Transaction Data'));
             }
         }
     }
