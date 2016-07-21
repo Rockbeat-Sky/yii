@@ -24,6 +24,22 @@ class ActiveRecord extends \yii\db\ActiveRecord
         }
     }
     
+    /**
+     * 
+     * Example :
+     * ```
+     * return [
+     *      self::EVENT_BEFORE_INSERT => [
+     *          [[$this, 'onSetValue'], ['attributes' => ['created_at', 'updated_at'], 'value' => time()]],
+     *          [[$this, 'onSetValue'], ['attributes' => ['created_by', 'updated_by'], 'value' => Yii::$app->user->id]],
+     *      ],
+     *      self::EVENT_BEFORE_UPDATE => [
+     *          [[$this, 'onSetValue'], ['attributes' => ['updated_at'], 'value' => time()]],
+     *      ],
+     *  ];
+     * 
+     * @return array
+     */
     public function event()
     {
         return [
@@ -47,6 +63,10 @@ class ActiveRecord extends \yii\db\ActiveRecord
         $this->trigger(self::EVENT_ADD_ERROR);
     }
     
+    /**
+     * 
+     * @return boolean
+     */
     public static function isError()
     {
         return self::$errors ? true : false;

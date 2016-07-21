@@ -155,11 +155,26 @@ class FileExplorer extends \yii\base\Component
         return FileHelper::getMimeTypeByExtension($this->basename, $magicFile);
     }
     
+    /**
+     * creating object file or folder
+     * 
+     * @param string $path path location
+     * @param string $class nameclass
+     * @return \sky\yii\helpers\FileExplorer | mix | object
+     */
     private function createObject($path, $class = null)
     {
-        return new $this->class(['path' => $path, 'class' => null]);
+        if ($class == null) {
+            $class = $this->class;
+        }
+        return new $this->class(['path' => $path, 'class' => $class]);
     }
     
+    /**
+     * count total files
+     * 
+     * @return int
+     */
     public function getTotalFiles()
     {
         if (!$this->_files) {
@@ -174,11 +189,21 @@ class FileExplorer extends \yii\base\Component
         return $i;
     }
     
+    /**
+     * count Total Folders
+     * 
+     * @return int
+     */
     public function getTotalFolders()
     {
         return $this->total - $this->totalFiles;
     }
     
+    /**
+     * count total Folders and Files
+     * 
+     * @return int
+     */
     public function getTotal()
     {
         if (!$this->_files) {
