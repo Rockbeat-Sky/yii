@@ -19,6 +19,9 @@ class ActiveRecord extends \yii\db\ActiveRecord
     {
         foreach ($this->event() as $name => $event) {
             foreach ($event as $handler) {
+                if (!isset($handler[1])) {
+                    $handler[1] = null;
+                }
                 $this->on($name, $handler[0], $handler[1]);
             }
         }
@@ -52,7 +55,7 @@ class ActiveRecord extends \yii\db\ActiveRecord
                 [[$this, 'onSetValue'], ['attributes' => ['updated_by'], 'value' => Yii::$app->user->id]],
             ],
             self::EVENT_AFTER_VALIDATE => [
-                [[$this, 'onTransaction'], null],
+                [[$this, 'onTransaction']],
             ],
         ];
     }
