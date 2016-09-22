@@ -2,6 +2,7 @@
 namespace sky\yii\db;
 
 use Yii;
+use yii\helpers\Inflector;
 /* 
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -11,7 +12,9 @@ use Yii;
 class ActiveRecord extends \yii\db\ActiveRecord
 {
     static $errors = [];
-    
+    private static $_const;
+
+
     const EVENT_ADD_ERROR = 'onAddError';
     const EVENT_ERROR = 'onError';
     
@@ -59,6 +62,40 @@ class ActiveRecord extends \yii\db\ActiveRecord
             ],
         ];
     }
+    /**
+     * get constants by name
+     * 
+     * @param string $name
+     * @return array
+     */
+    public static function getConstants($name) 
+    {
+        if (isset(self::$_const[$name])) {
+            return self::$_const[$name];
+        }
+        $self = new \ReflectionClass(new static());
+        $contants = $self->getConstants();
+        $prefix = strtoupper($name) . '_';
+        $prefixLength = strlen($prefix);
+        $prefixOffset = $prefixLength - 1;
+        self::$_const[$name] = [];
+        foreach ($contants as $key => $value) {
+            if (substr($key, 0, $prefixLength) === $prefix) {
+                self::$_const[$name][$value] = ucwords(strtolower(Inflector::humanize(substr($key, $prefixLength))));
+            }
+        }
+        return self::$_const[$name];
+    }
+    
+    public static function getConstant($name, $value)
+    {
+        if ($options = static::getConstants($name)) {
+            if (isset($options[$value])) {
+                return $options[$value];
+            }
+        }
+        return false;
+    }
     
     public function addError($attribute, $error = '') {
         if (!self::hasError()) {
@@ -67,6 +104,8 @@ class ActiveRecord extends \yii\db\ActiveRecord
         self::$errors[$this->className()][$attribute][] = $error;
         parent::addError($attribute, $error);
         $this->trigger(self::EVENT_ADD_ERROR);
+        
+        return $this;
     }
     
     /**
@@ -78,7 +117,7 @@ class ActiveRecord extends \yii\db\ActiveRecord
         return self::$errors ? true : false;
     }
     
-    public function onSetValue($event)
+    protected function onSetValue($event)
     {
         if (is_array($event->data['attributes'])) {
             foreach ($event->data['attributes'] as $attribute) {
@@ -89,7 +128,7 @@ class ActiveRecord extends \yii\db\ActiveRecord
         }
     }
     
-    public function onTransaction($event)
+    protected function onTransaction($event)
     {
         $transaction = $this->db->getTransaction();
         if ($transaction) {
