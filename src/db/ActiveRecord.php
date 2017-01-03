@@ -3,6 +3,7 @@ namespace sky\yii\db;
 
 use Yii;
 use yii\helpers\Inflector;
+use yii\helpers\ArrayHelper;
 /* 
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -51,11 +52,11 @@ class ActiveRecord extends \yii\db\ActiveRecord
         return [
             self::EVENT_BEFORE_INSERT => [
                 [[$this, 'onSetValue'], ['attributes' => ['created_at', 'updated_at'], 'value' => time()]],
-                [[$this, 'onSetValue'], ['attributes' => ['created_by', 'updated_by'], 'value' => Yii::$app->user->id]],
+                [[$this, 'onSetValue'], ['attributes' => ['created_by', 'updated_by'], 'value' => $this->userId]],
             ],
             self::EVENT_BEFORE_UPDATE => [
                 [[$this, 'onSetValue'], ['attributes' => ['updated_at'], 'value' => time()]],
-                [[$this, 'onSetValue'], ['attributes' => ['updated_by'], 'value' => Yii::$app->user->id]],
+                [[$this, 'onSetValue'], ['attributes' => ['updated_by'], 'value' => $this->userId]],
             ],
             self::EVENT_AFTER_VALIDATE => [
                 [[$this, 'onTransaction']],
@@ -136,5 +137,13 @@ class ActiveRecord extends \yii\db\ActiveRecord
                 throw new \yii\db\Exception(Yii::t('app', 'Fail Transaction Data'));
             }
         }
+    }
+    
+    protected function getUserId()
+    {
+        if (Yii::$app instanceof \yii\console\Application) {
+            return null;
+        }
+        return ArrayHelper::getValue(Yii::$app, 'user.id');
     }
 }
