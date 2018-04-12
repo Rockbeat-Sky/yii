@@ -3,7 +3,7 @@
 	"description": "Sky extends libray for yii2",
 	"homepage": "http://rockbeat.web.id",
 	"type": "library",
-	"license": "Apache",
+	"license": "Apache-2.0",
 	"authors": [
 		{
 			"name": "Hansen Wong",

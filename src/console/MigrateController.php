@@ -16,12 +16,12 @@ class MigrateController extends \yii\console\controllers\MigrateController
         $this->stdout("Creating migration history table \"$tableName\"...", Console::FG_YELLOW);
         $this->db->createCommand()->createTable($this->migrationTable, [
             'version' => 'varchar(180) NOT NULL PRIMARY KEY',
-            'path' => 'varchar(255) NOT NULL',
+            'migrationPath' => 'varchar(255) NOT NULL',
             'apply_time' => 'integer',
         ])->execute();
         $this->db->createCommand()->insert($this->migrationTable, [
             'version' => self::BASE_MIGRATION,
-            'path' => self::className(),
+            'migrationPath' => self::className(),
             'apply_time' => time(),
         ])->execute();
         $this->stdout("Done.\n", Console::FG_GREEN);
@@ -35,7 +35,7 @@ class MigrateController extends \yii\console\controllers\MigrateController
         $command = $this->db->createCommand();
         $command->insert($this->migrationTable, [
             'version' => $version,
-            'path' => $this->migrationPath . DIRECTORY_SEPARATOR,
+            'migrationPath' => $this->migrationPath . DIRECTORY_SEPARATOR,
             'apply_time' => time(),
         ])->execute();
     }
@@ -59,13 +59,13 @@ class MigrateController extends \yii\console\controllers\MigrateController
     protected function createMigration($class)
     {
         $query = new Query;
-        $migrate = $query->select(['path'])
+        $migrate = $query->select(['migrationPath'])
                 ->from($this->migrationTable)
                 ->where(['version' => $class])
                 ->one();
         $filename = DIRECTORY_SEPARATOR . $class . '.php';
-        if ($migrate && file_exists($migrate['path'] . $filename)) {
-            $this->migrationPath = $migrate['path'];
+        if ($migrate && file_exists($migrate['migrationPath'] . $filename)) {
+            $this->migrationPath = $migrate['migrationPath'];
         }
 
         $file = $this->migrationPath . $filename;
